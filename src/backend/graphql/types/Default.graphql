@@ -1,0 +1,12 @@
+scalar DateTime
+
+scalar JSON
+
+type ErrorType {
+    error: Boolean
+    message: String
+}
+
+type Mutation {
+    LogInUser(username: String, email: String, password: String): ErrorType
+}
