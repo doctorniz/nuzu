@@ -41,7 +41,7 @@ export default {
         },
         logging: {
             loggingFormat: 'combined',
-            disable: false
+            disable: true
         }
     },
     auth: {

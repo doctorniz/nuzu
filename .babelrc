@@ -1,9 +1,9 @@
 {
   "presets": [
-    "env",
-    "react"
+    "env"
   ],
   "plugins": [
+    "babel-plugin-transform-runtime",
     "babel-plugin-root-import",
     "syntax-object-rest-spread",
     "transform-decorators-legacy",

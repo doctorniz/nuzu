@@ -1,8 +1,4 @@
-//const generateSchema = require('./generateSchema')
-//const sampleSchema = require('../sampleSchema.json')
-//const schema = generateSchema(sampleSchema, "mongoose");
-//console.log(schema.User.schema)
-import "babel-polyfill"
+
 import express from 'express'
 import backend from './backend'
 const PORT = 4000

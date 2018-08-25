@@ -1,12 +1,10 @@
 {
-  "name": "nORM",
-  "version": "1.0.0",
+  "name": "nuzu",
+  "version": "0.1.0",
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "babel src --out-dir dist --extensions .js --copy-files && node dist/index.js",
-    "gentypes": "babel-node src/graphql/helpers/genTypeDefs.js",
-    "createTypes": "babel-node helpers/createFullSchema"
+    "start": "babel src --out-dir dist --extensions .js --copy-files && node dist/index.js"
   },
   "dependencies": {
     "@okgrow/graphql-scalars": "^0.4.1",
@@ -46,6 +44,7 @@
     "babel-plugin-syntax-object-rest-spread": "^6.13.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.5",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-register": "^6.26.0"
