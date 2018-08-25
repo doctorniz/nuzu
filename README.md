@@ -1,4 +1,4 @@
-# Ormaroo Backend Server: WORK IN PROGRESS
+# Ormaroo Backend Server: WORK IN PROGRESS - DO NOT INSTALL!!
 
 ![](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png)
 
@@ -9,21 +9,25 @@ Define your models once, use everywhere.
 ## Features
 
 - **Ambitious database-agnostic ORM/ODM (Object Relational Mapper/ Object Document Mapper)**
-	- Build on knex.js and thus is compatible with the most common SQL databases -> MySQL, Postgres, SQLite, MSSQL
-	- Tested extensively with Postgres on a Windows 10 platform
-	- Basic CRUD functions available out-of-the-box
-	- Add event subscribers/hooks
-	- Validate/parse input before it reaches the database
-	- *TODO*: Migrations, MongoDB/Cassandra/CouchDB compatibility
+	- Utilises knex.js and thus is compatible with the most common SQL databases -> MySQL, Postgres, SQLite, MSSQL [x]
+	- Tested extensively with Postgres on a Windows 10 platform [x]
+	- Basic CRUD functions available out-of-the-box [x]
+	- Add event subscribers/hooks [ ] - beforeInsert, onDelete, beforeUpdate, onLookup [x]
+	- Support for arrays [ ] and enums [ ]
+	- Validate/parse input before it reaches the database [ ]
+	- *TODO*: Migrations, Seeding,  MongoDB/Redis/Cassandra/CouchDB compatibility [ ]
 - **Automated REST/GraphQL server**
 	- Automatic REST end-points generated with basic CRUD functionality at `/api` with the ability to add custom end-points
 	- Automatic GraphQL end-point generated from models and Apollo Server (v 2.0) is deployed at `/graphql`
+    - *TODO*: File upload
 - **Express server with middleware preloaded**
 	- The usual middleware are pre-loaded onto the server including body parser, cookie parser, cors and morgan for logging
 	- Static files are served from the **public** directory in root at `/file`
+- **Session storage and user login functionality**
 - **Graphical user interface for the backend**
+	- Using vue to generate basic vue [x] at `/admin`
+- **Nodemailer emailing functionality**
 
-[TOC]
 
 ## Installation
 

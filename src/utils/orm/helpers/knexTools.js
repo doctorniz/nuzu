@@ -1,14 +1,14 @@
 const knexTools = {
     _connect (config) {
         const knex = require('knex')({
-            client: this.dialect,
-            connection: config
+            client: config.dialect,
+            connection: config.connection
         })
         this.client = knex
         this.sql = this.client.raw
-        knexTools._testConnect.call(this)
+        knexTools._testConnection.call(this)
     },
-    async _testConnect() {
+    async _testConnection() {
         try {
             const response = await this.sql(`SELECT 1+1 AS "result"`)
             require('assert')(response.rows[0].result === 2)
@@ -25,7 +25,7 @@ const knexTools = {
     table_schema AS schema, table_name AS name
     FROM information_schema.tables
     WHERE table_type = 'BASE TABLE'
-    ${this.dialect === "postgres" && this.schema ? `AND table_schema = '${this.schema}'` : ""}
+    ${this.dialect === "postgres" && this.pgSchema ? `AND table_schema = '${this.pgSchema}'` : ""}
     AND table_schema NOT IN ('pg_catalog', 'information_schema');`)
         this._initialTables = rows
         console.log(`Found ${rows.length} tables in database: ${rows.map(a => `"${a.name}"`).join(", ")}`)
@@ -34,26 +34,37 @@ const knexTools = {
         let returnObj = {}, 
             columns = this.model.columns, 
             knex = this.db.client,
-            idTaken = false
+            idTaken = false,
+            modelOptions = this.model.options
         for(let key in columns) {
             if(["id", "_id"].includes(key.toLowerCase())) idTaken = key
-            Object.assign(returnObj, knexTools._createColumn(key, columns[key]))
+            Object.assign(returnObj, knexTools._createColumn.call(this, key, columns[key]))
         }
         if(idTaken) {
+            this.uniques.push(idTaken) 
             Object.assign(returnObj, knexTools._createIDColumn("id", columns[idTaken].uuid, knex ))
         } else {
+            this.uniques.push("id") 
             Object.assign(returnObj, knexTools._createIDColumn())
+        }
+        if(modelOptions.uuid) {
+            this.uniques.push("uuid") 
             Object.assign(returnObj, knexTools._createIDColumn("uuid", true, knex))
+        }
+        if(modelOptions.shortid) {
+            this.uniques.push("short")  
+            Object.assign(returnObj, knexTools._createIDColumn("short", true, knex))
         }
         return returnObj
     },
     _createColumn(name, props) {
+        if(props.unique) this.uniques.push(name)
         return {
             [name]: {
                 knexFn: knexTools._getKnexFunction(props.type),
                 required: props.required || false,
                 unique: props.unique || false,
-                defaultValue: props.defaultValue || null,
+                defaultValue: props.hasOwnProperty("defaultValue") ? props.defaultValue : undefined,
                 reference: props.reference || null,
                 enums: props.enumOptions || null,
                 isEnum: props.type.toLowerCase() === "enum",
@@ -64,12 +75,12 @@ const knexTools = {
     _createIDColumn(id = "id", uuid = false, knex = null) {
         return {
             [id] : {
-                knexFn: uuid ? "uuid" : "increments",
+                knexFn: uuid ? "string" : "increments",
                 primary: true,
                 required: true,
                 unique: true, 
                 isEnum: false,
-                defaultValue: uuid ? knex.raw("uuid_generate_v4()") : null,
+                defaultValue: undefined,
                 reference: null,
                 enums: null
             }
@@ -116,14 +127,29 @@ const knexTools = {
     },
     async _createTable() {
         const knex = this.db.client
-        const response = await knex.schema.createTable(this.name, knexTools._produceTableCB(this.schema))
+        const response = await knex.schema.createTable(this.name, knexTools._produceTableCB(this.schema, this.model.options, this.uniques))
         console.log(`New table "${this.name}" created successfully`)
         return response
     },
-    _produceTableCB( { id, ...rest } ) {
+    async _dropTableIfExists() {
+        const knex = this.db.client
+        try {
+            await knex.schema.dropTableIfExists(this.name)
+            return {
+                success: true,
+                error: null
+            }
+        } catch(error) {
+            return {
+                success: false,
+                error
+            }
+        }
+    },
+    _produceTableCB( { id, ...rest }, modelOptions, uniques ) {
         return table => {
             table[id.knexFn]("id")
-            let uniques = ["id"], indices = []
+            let indices = []
             for(let key in rest) {
                 let {
                     knexFn,
@@ -131,12 +157,11 @@ const knexTools = {
                     unique,
                     required
                 } = rest[key]
-                if(unique) uniques.push(key)
                 let t = table[knexFn](key)
                 if(required) t.notNullable()
-                if(defaultValue !== null) t.defaultsTo(defaultValue)                   
+                if(rest[key].defaultValue !== undefined) t.defaultsTo(defaultValue)             
             }
-            table.timestamps(true, true);
+            if(modelOptions.timestamps) table.timestamps(true, true);
             table.unique(uniques)
         }
     },

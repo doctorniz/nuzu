@@ -6,35 +6,41 @@ class Table {
     constructor(...args) {
         initTable.config.call(this, ...args)
         initTable.createSchema.call(this)
-        initTable.introspectTable.call(this).then(tableExists => {
+        initTable.introspectTable.call(this).then(async tableExists => {
             if(!tableExists) initTable.createTable.call(this)
-            if(tableExists) console.log(`Table "${this.name}" already exists.`)
+            if(tableExists) {
+                console.log(`Table "${this.name}" already exists.`)
+                if(this.model.options.rebuild) {
+                    console.log(`The table will be rebuilt.`)
+                    let response = await initTable.dropTable.call(this)
+                    initTable.createTable.call(this)
+                }
+            }
         })
     }
 
-    async find(query, options) {
-        const response = await CRUD.find.call(this, query, options)
+    async find(input) {
+        const response = await CRUD.find.call(this, input)
         return response
     }
 
-    async insertOne(values, options) {
-        // validate 'values' first
-        const response = await CRUD.insertOne.call(this, values, options)
+    async insertOne(input) {
+        const response = await CRUD.insertOne.call(this, input)
         return response
     }
 
-    async findOne(query, options) {
-        const response = await CRUD.findOne.call(this, query, options)
+    async findOne(input) {
+        const response = await CRUD.findOne.call(this, input)
         return response
     }
 
-    async updateOne(selector, values, options) {
-        const response = await CRUD.updateOne.call(this, selector, values, options)
+    async updateOne(input) {
+        const response = await CRUD.updateOne.call(this, input)
         return response
     }
 
-    async deleteOne(selector, options) {
-        const response = await CRUD.deleteOne.call(this, selector, options)
+    async deleteOne(input, options) {
+        const response = await CRUD.deleteOne.call(this, input)
         return response
     }
 }

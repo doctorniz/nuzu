@@ -5,7 +5,6 @@ class Database {
     constructor(config, name) {
         // this is where we first initialize the configuration
         // of the database
-        this._tables = []
         initDB.config.call(this, config, name)
         initDB.connect.call(this, config) // -> and then tested
         initDB.introspect.call(this)

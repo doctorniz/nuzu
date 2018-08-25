@@ -25,14 +25,18 @@ const createEachResolver = ({ name, columns, relations }) => {
                 const results = await db[name].insertOne(args)
                 return results
             },
-            [`Update${name}`]: async (_, { id, ...args }, { db }) => {
-                const results = await db[name].updateOne(id, args)
+            [`Update${name}`]: async (_, args, { db }) => {
+                const results = await db[name].updateOne(args)
                 return results
             },
-            [`Remove${name}`]: async (_, { id }, { db }) => {
-                const results = await db[name].removeOne(id)
+            [`Remove${name}`]: async (_, args, { db }) => {
+                const results = await db[name].deleteOne(args)
                 return results
             },
+        },
+        [name]: {
+            createdAt: _ => _.created_at,
+            updatedAt: _ => _.updated_at
         }
     }
 }

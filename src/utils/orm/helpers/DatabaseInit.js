@@ -2,11 +2,13 @@ import knexTools from './knexTools'
 import Table from '../Table'
 
 export default {
-    config (configuration, name)  {
+    config (dbConfig, name)  {
         this.isConnected = false
         this.name = name
-        this.dialect = configuration.dialect
-        if (configuration.schema) this.schema = configuration.schema
+        this._tables = []
+        this._tableObject = { }
+        this.dialect = dbConfig.dialect
+        if (dbConfig.connection.schema) this.pgSchema = dbConfig.connection.schema
     },
     connect (config) {
         switch (this.dialect) {
@@ -40,6 +42,7 @@ export default {
         if(Array.isArray(model)) return model.forEach(each => this.addTable(each))
         const table = new Table(model, this.dialect, this)
         this._tables.push(model.name)
+        this._tableObject[model.name] = table
         this[model.name] = table
     }
 }

@@ -1,5 +1,10 @@
+import { DateTime } from '@okgrow/graphql-scalars'
+import JSON from 'graphql-type-json';
 
-module.exports = {
+
+export default {
+    DateTime,
+    JSON,
     Mutation: {
         LogInUser: async(_, args, { db, models }) => {
             return {

@@ -7,6 +7,9 @@ export default {
         this.dialect = dialect
         this.db = database
         this.model = model
+        this.methods = model.methods
+        this.events = model.events
+        this.uniques = []
     },
 
     createSchema () {
@@ -39,6 +42,24 @@ export default {
                 return undefined;
                 break;
         }
+    },
+
+    async dropTable() {
+        switch (this.dialect) {
+            case "postgres":
+            case "mysql":
+            case "sqlite":
+            case "mssql":
+                let response = await knexTools._dropTableIfExists.call(this)
+                return response;
+                break;
+            case "mongodb":
+            default:
+                console.log(`Unsupported ${this.dialect} connection at this stage`)
+                return undefined;
+                break;
+        }
+
     },
     
     createTable() {

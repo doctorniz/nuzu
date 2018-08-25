@@ -89,7 +89,7 @@ const parseGraphQLType = ({type, array}) => {
     return returnString
 }
 
-const createEachType = ({ name, columns, relations }) => {
+const createEachType = ({ name, columns, relations, options }) => {
     let schema = "",
         columnFields = [],
         columnInputs = [],
@@ -122,10 +122,14 @@ const createEachType = ({ name, columns, relations }) => {
 
     let typeDefinition = `{
     id: ID!
+    ${options.uuid ? `uuid: String!` : ``}
+    ${options.shortid ? `short: String!` : ``}    
     ${columnFields.join(`
     `)}
     ${relationsFields.join(`
     `)}
+    createdAt: DateTime
+    updatedAt: DateTime
 }`
 
     let inputDefinition = `{
@@ -134,6 +138,8 @@ const createEachType = ({ name, columns, relations }) => {
     `)}
     ${relationsInputs.join(`
     `)}
+    createdAt: DateTime
+    updatedAt: DateTime
 }`
 
     schema += `
@@ -153,9 +159,10 @@ type Mutation {
 
 type ${name}Payload {
     success: Boolean
-    error: String
+    error: ErrorType
     item: ${name}
     items: [${name}]
+    pagination: Pagination
     message: String
 }
 
